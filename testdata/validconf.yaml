@@ -1,0 +1,7 @@
+logLevel: "Debug"
+outputFilePath: "log/dev.log"
+maxAge: 14
+maxBackups: 3
+maxSize: 500
+compress: true
+stdout: true
