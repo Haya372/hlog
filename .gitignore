@@ -1,2 +1,5 @@
 # coverage file
 cover.*
+
+# VSCode
+.vscode
