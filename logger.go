@@ -1,9 +1,12 @@
 package hlog
 
 import (
+	"io"
+	"os"
 	"reflect"
 
 	"github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Logger interface {
@@ -66,4 +69,52 @@ func convertToLogrusFields(v interface{}) logrus.Fields {
 		}
 	}
 	return fields
+}
+
+func NewLogger(config Config) Logger {
+	var writer io.Writer
+	if len(config.OutputFilePath) == 0 {
+		writer = os.Stdout
+	} else {
+		lumberjackWriter := &lumberjack.Logger{
+			Filename:   config.OutputFilePath,
+			MaxSize:    config.MaxSize,
+			MaxBackups: config.MaxBackups,
+			MaxAge:     config.MaxAge,
+			Compress:   config.Compress,
+		}
+		if config.Stdout {
+			writer = io.MultiWriter(lumberjackWriter, os.Stdout)
+		} else {
+			writer = lumberjackWriter
+		}
+	}
+
+	logrusLogger := logrus.New()
+
+	logrusLogger.SetOutput(writer)
+	logrusLogger.SetLevel(getLogrusLogLevel(config.LogLevel))
+
+	return &loggerImpl{
+		logrusLogger: logrusLogger,
+	}
+}
+
+func getLogrusLogLevel(logLevel LogLevel) logrus.Level {
+	var res logrus.Level
+	switch logLevel {
+	case Fatal:
+		res = logrus.FatalLevel
+	case Error:
+		res = logrus.ErrorLevel
+	case Warn:
+		res = logrus.WarnLevel
+	case Debug:
+		res = logrus.DebugLevel
+	case Trace:
+		res = logrus.TraceLevel
+	default:
+		res = logrus.InfoLevel
+	}
+	return res
 }
