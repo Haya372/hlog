@@ -33,19 +33,19 @@ func Test_NewConfigFromYamlFile(t *testing.T) {
 			name:     "file path is empty",
 			filePath: "",
 			expected: nil,
-			err:      filePathEmptyErr,
+			err:      errFilePathEmpty,
 		},
 		{
 			name:     "file is not exist",
 			filePath: "notexist.yaml",
 			expected: nil,
-			err:      fileReadingErr,
+			err:      errFileRead,
 		},
 		{
 			name:     "file reading err",
 			filePath: "testdata/invalidconf.yaml",
 			expected: nil,
-			err:      fileReadingErr,
+			err:      errFileRead,
 		},
 	}
 

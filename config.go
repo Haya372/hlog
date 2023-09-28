@@ -2,7 +2,6 @@ package hlog
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 
@@ -31,20 +30,20 @@ type Config struct {
 }
 
 var (
-	filePathEmptyErr          = errors.New("configuration file path is empty")
-	fileReadingErr            = errors.New("could not read configuration file")
-	unrecognizedLogLevelError = errors.New("unrecognized log level")
+	errFilePathEmpty   = errors.New("configuration file path is empty")
+	errFileRead        = errors.New("could not read configuration file")
+	errUnknownLogLevel = errors.New("unrecognized log level")
 )
 
 func NewConfigFromYamlFile(filePath string) (*Config, error) {
 	if len(filePath) == 0 {
-		return nil, filePathEmptyErr
+		return nil, errFilePathEmpty
 	}
 
 	file, err := os.Open(filePath)
 
 	if err != nil {
-		return nil, errors.Join(fileReadingErr, err)
+		return nil, errors.Join(errFileRead, err)
 	}
 
 	decoder := yaml.NewDecoder(file)
@@ -53,7 +52,7 @@ func NewConfigFromYamlFile(filePath string) (*Config, error) {
 
 	err = decoder.Decode(conf)
 	if err != nil {
-		return nil, errors.Join(fileReadingErr, err)
+		return nil, errors.Join(errFileRead, err)
 	}
 
 	return conf, nil
@@ -64,7 +63,7 @@ func (l *LogLevel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	e := unmarshal(&s)
 
 	if e != nil {
-		return errors.Join(fileReadingErr, e)
+		return errors.Join(errFileRead, e)
 	}
 
 	switch strings.ToLower(s) {
@@ -81,7 +80,7 @@ func (l *LogLevel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	case "trace":
 		*l = Trace
 	default:
-		return fmt.Errorf("log level %s is not supported", s)
+		return errUnknownLogLevel
 	}
 
 	return nil
