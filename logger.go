@@ -11,11 +11,17 @@ import (
 
 type Logger interface {
 	Trace(msg string, v interface{})
+	Tracef(format string, args ...interface{})
 	Debug(msg string, v interface{})
+	Debugf(format string, args ...interface{})
 	Info(msg string, v interface{})
+	Infof(format string, args ...interface{})
 	Warn(msg string, v interface{})
+	Warnf(format string, args ...interface{})
 	Error(msg string, v interface{})
+	Errorf(format string, args ...interface{})
 	Fatal(msg string, v interface{})
+	Fatalf(format string, args ...interface{})
 	WithError(err error) Logger
 }
 
@@ -24,27 +30,55 @@ type loggerImpl struct {
 }
 
 func (l *loggerImpl) Trace(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Trace(msg)
+	l.logrusLogger.Trace(msg)
+}
+
+func (l *loggerImpl) Tracef(format string, args ...interface{}) {
+	l.logrusLogger.Tracef(format, args...)
 }
 
 func (l *loggerImpl) Debug(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Debug(msg)
+	l.logrusLogger.Debug(msg)
+}
+
+func (l *loggerImpl) Debugf(format string, args ...interface{}) {
+	l.logrusLogger.Debugf(format, args...)
 }
 
 func (l *loggerImpl) Info(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Info(msg)
+	l.logrusLogger.Info(msg)
+}
+
+func (l *loggerImpl) Infof(format string, args ...interface{}) {
+	l.logrusLogger.Infof(format, args...)
 }
 
 func (l *loggerImpl) Warn(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Warn(msg)
+	l.logrusLogger.Warn(msg)
+}
+
+func (l *loggerImpl) Warnf(format string, args ...interface{}) {
+	l.logrusLogger.Warnf(format, args...)
 }
 
 func (l *loggerImpl) Error(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Error(msg)
+	l.logrusLogger.Error(msg)
+}
+
+func (l *loggerImpl) Errorf(format string, args ...interface{}) {
+	l.logrusLogger.Errorf(format, args...)
 }
 
 func (l *loggerImpl) Fatal(msg string, v interface{}) {
-	l.logrusLogger.WithFields(convertToLogrusFields(v)).Fatal(msg)
+	l.logrusLogger.Fatal(msg)
+}
+
+func (l *loggerImpl) Fatalf(format string, args ...interface{}) {
+	l.logrusLogger.Fatalf(format, args...)
+}
+
+func (l *loggerImpl) WithValue(v interface{}) {
+	l.logrusLogger.WithFields(convertToLogrusFields(v))
 }
 
 func (l *loggerImpl) WithError(err error) Logger {
@@ -94,6 +128,7 @@ func NewLogger(config Config) Logger {
 
 	logrusLogger.SetOutput(writer)
 	logrusLogger.SetLevel(getLogrusLogLevel(config.LogLevel))
+	logrusLogger.SetFormatter(logrus.StandardLogger().Formatter)
 
 	return &loggerImpl{
 		logrusLogger: logrusLogger,
